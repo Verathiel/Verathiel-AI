@@ -1,6 +1,7 @@
 import json
 import logging
 
+# Iniciální prázdné proměnné
 uzivatelske_info = {}
 historie_konverzace = []
 
@@ -10,7 +11,8 @@ def uloz_data():
         'historie_konverzace': historie_konverzace
     }
     try:
-        with open('data.json', 'w', encoding='utf-8') as f:
+        # Opravená cesta k souboru
+        with open('data/data.json', 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
     except Exception as e:
         logging.error(f"Chyba při ukládání dat: {e}")
@@ -18,7 +20,8 @@ def uloz_data():
 def nacti_data():
     global uzivatelske_info, historie_konverzace
     try:
-        with open('data.json', 'r', encoding='utf-8') as f:
+        # Opravená cesta k souboru
+        with open('data/data.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
             uzivatelske_info = data.get('uzivatelske_info', {})
             historie_konverzace = data.get('historie_konverzace', [])
