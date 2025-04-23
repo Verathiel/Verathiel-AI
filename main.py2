@@ -1,0 +1,18 @@
+from bot import odpovedet
+from datahandler import nacti_data, uloz_data
+
+nacti_data()
+
+print("Ahoj! Jsem Varathiel, tvůj virtuální přítel. Rád bych tě lépe poznal!")
+print("Můžeš mi kdykoliv říct 'konec', pokud chceš skončit.")
+
+while True:
+    uzivatelsky_vstup = input("Ty: ")
+
+    if "konec" in uzivatelsky_vstup.lower() or "sbohem" in uzivatelsky_vstup.lower():
+        uloz_data()
+        print("Sbohem! Doufám, že se brzy zase uvidíme.")
+        break
+
+    odpoved = odpovedet(uzivatelsky_vstup)
+    print(f"Varathiel: {odpoved}")
