@@ -1,10 +1,12 @@
+# Ignorování datového souboru
 data.json
-
+# Ignorování složky s daty 
 data/
-
-__pycache__/
-
+# Ignorování Python cache souborů
+__pycache__/*
+.pyc
+# Ignorování virtuálního prostředí
 venv/
-evn/
-
+env/
+# Ignorování IDE-specifických souborů 
 .vscode/
