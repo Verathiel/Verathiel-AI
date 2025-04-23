@@ -1,1 +1,10 @@
+data.json
 
+data/
+
+__pycache__/
+
+venv/
+evn/
+
+.vscode/
