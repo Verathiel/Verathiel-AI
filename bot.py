@@ -61,8 +61,7 @@ def odpovedet(zprava):
 
     emotion = detect_emotion(zprava)
     if emotion in responses:
-        return
-    random.choice(responses[emotion])
+        return random.choice(responses[emotion])
 
     elif any(emoce in zprava for emoce in ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
         return random.choice(odpovedi_emoce)
