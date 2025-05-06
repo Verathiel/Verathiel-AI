@@ -24,8 +24,8 @@ def odstran_diakritiku(zprava):
 def odpovedet(zprava):
     global prazdne_vstupy
     zprava = odstran_diakritiku(zprava.lower()).strip()  # Zajistíme odstranění mezer
-
-    if not zprava:
+ 
+  if not zprava:
         prazdne_vstupy += 1
         if prazdne_vstupy >= 3:
             return "Hej, jsi tam ještě? Napiš něco, ať pokračujeme!"
@@ -33,6 +33,11 @@ def odpovedet(zprava):
 
     prazdne_vstupy = 0
     logging.debug(f"Zpráva po odstranění diakritiky: '{zprava}'")
+    
+    if "jsem smutna" in zprava:
+        return random.choice(odpovedi_emoce_negative)
+    if "jsem vesela" in zprava:
+        return random.choice(odpovedi_emoce_positive)
 
     pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
     if any(pozdrav in zprava for pozdrav in pozdravy):
@@ -55,35 +60,6 @@ def odpovedet(zprava):
         logging.debug(f"Rozpoznána preference: {preference}")
         return f"Skvělé, že máš rád {preference}! To je zajímavé."
 
-    # Kontrola emocí
-    negative_keywords = ["smutny", "smutna", "spatne", "blbe"]
-    positive_keywords = ["stastny", "stastna", "dobre", "skvele"]
-
-    # Rozdělíme zprávu na slova pro kontrolu
-    zprava_slova = zprava.split()
-    logging.debug(f"Zpráva rozdělená na slova: {zprava_slova}")
-
-    # Kontrola, zda zpráva obsahuje emoci
-    found_negative = False
-    found_positive = False
-
-    if "jsem" in zprava_slova:
-        for keyword in negative_keywords:
-            if keyword in zprava_slova:  # Hledáme klíčová slova přímo v seznamu slov
-                found_negative = True
-                logging.debug(f"Rozpoznána negativní emoce: {keyword}")
-                break
-        for keyword in positive_keywords:
-            if keyword in zprava_slova:  # Hledáme klíčová slova přímo v seznamu slov
-                found_positive = True
-                logging.debug(f"Rozpoznána pozitivní emoce: {keyword}")
-                break
-
-    if found_negative:
-        return random.choice(odpovedi_emoce_negative)
-    if found_positive:
-        return random.choice(odpovedi_emoce_positive)
-
     # Kontrola otázky na čas
     elif any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
         logging.debug("Rozpoznána otázka na čas")
@@ -98,6 +74,7 @@ def odpovedet(zprava):
     if 'jmeno' in uzivatelske_info:
         logging.debug("Použita odpověď s jménem uživatele")
         return f"{uzivatelske_info['jmeno']}, co plánuješ dnes?"
+
 
     logging.debug("Není rozpoznána žádná specifická podmínka")
     return "Promiň, tomu nerozumím. Můžeš to prosím říct jinak nebo to více objasnit?"
