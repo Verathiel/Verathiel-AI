@@ -27,7 +27,6 @@ def detect_emotion(text):
         return "negative"
     elif any(word in text for word in ["happy", "great", "awesome", "good", "stastny", "skvely", "super", "jsem stastny", "jsem stastna"]):
         return "positive"
-    return "neutral"
 
 def odpovedet(zprava):
     global prazdne_vstupy
