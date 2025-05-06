@@ -5,7 +5,7 @@ from datetime import datetime
 import json
 
 with open("responses.json", "r") as f:
-    responses = json.load(f)
+    responses = json.load(f)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -18,55 +18,75 @@ odpovedi_emoce_negative = ["To mě mrzí, co se stalo? Řekni mi víc.", "Hej, t
 odpovedi_emoce_positive = ["To je super!, Jak to? Řekni mi víc.", "Hej, to je boží. Super, chceš o tom mluvit?", "Jéé! To ráda slyším!"]
 
 def odstran_diakritiku(zprava):
-    diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
-    return zprava.translate(diakritika)
+    diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
+    return zprava.translate(diakritika)
 
 def odpovedet(zprava):
-    global prazdne_vstupy
-    zprava = odstran_diakritiku(zprava.lower())
+    global prazdne_vstupy
+    zprava = odstran_diakritiku(zprava.lower()).strip()  # Zajistíme odstranění mezer
 
-    if not zprava.strip():
-        prazdne_vstupy += 1
-        if prazdne_vstupy >= 3:
-            return "Hej, jsi tam ještě? Napiš něco, ať pokračujeme!"
-        return "Prosím, polož mi otázku nebo mi něco řekni!"
+    if not zprava:
+        prazdne_vstupy += 1
+        if prazdne_vstupy >= 3:
+            return "Hej, jsi tam ještě? Napiš něco, ať pokračujeme!"
+        return "Prosím, polož mi otázku nebo mi něco řekni!"
 
-    prazdne_vstupy = 0
-    logging.debug(f"Zpráva po odstranění diakritiky: {zprava}")
+    prazdne_vstupy = 0
+    logging.debug(f"Zpráva po odstranění diakritiky: '{zprava}'")
 
-    pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
-    if any(pozdrav in zprava for pozdrav in pozdravy):
-        return random.choice(odpovedi_ahoj)
+    pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
+    if any(pozdrav in zprava for pozdrav in pozdravy):
+        logging.debug("Rozpoznán pozdrav")
+        return random.choice(odpovedi_ahoj)
 
-    elif any(varianta in zprava for varianta in ["jak se mas", "jak jsi", "jak jde", "jak se vede"]):
-        return random.choice(odpovedi_jak_se_mas)
+    elif any(varianta in zprava for varianta in ["jak se mas", "jak jsi", "jak jde", "jak se vede"]):
+        logging.debug("Rozpoznána otázka 'jak se máš'")
+        return random.choice(odpovedi_jak_se_mas)
 
-    elif re.search(r"jmenuji\s+se\s+(\w+)", zprava):
-        jmeno = re.search(r"jmenuji\s+se\s+(\w+)", zprava).group(1)
-        uzivatelske_info['jmeno'] = jmeno
-        return f"Rád tě poznávám, {jmeno}!"
+    elif re.search(r"jmenuji\s+se\s+(\w+)", zprava):
+        jmeno = re.search(r"jmenuji\s+se\s+(\w+)", zprava).group(1)
+        uzivatelske_info['jmeno'] = jmeno
+        logging.debug(f"Rozpoznáno jméno: {jmeno}")
+        return f"Rád tě poznávám, {jmeno}!"
 
-    elif re.search(r"mam\s+rad\s+(.+)", zprava):
-        preference = re.search(r"mam\s+rad\s+(.+)", zprava).group(1)
-        uzivatelske_info['preference'] = preference
-        return f"Skvělé, že máš rád {preference}! To je zajímavé."
+    elif re.search(r"mam\s+rad\s+(.+)", zprava):
+        preference = re.search(r"mam\s+rad\s+(.+)", zprava).group(1)
+        uzivatelske_info['preference'] = preference
+        logging.debug(f"Rozpoznána preference: {preference}")
+        return f"Skvělé, že máš rád {preference}! To je zajímavé."
 
-    emotion = detect_emotion(zprava)
-    if emotion in responses:
-        return random.choice(responses[emotion])
+    # Kontrola emocí
+    negative_phrases = ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]
+    positive_phrases = ["jsem stastny", "jsem stastna", "jsem mi dobre", "je mi skvele"]
 
-    elif any(emoce in zprava for emoce in ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
-        return random.choice(odpovedi_emoce_negative)
-    elif any(emoce in zprava for emoce in ["jsem stastny", "jsem stastna", "jsem mi dobre", "je mi skvele"]):
-        return random.choice(odpovedi_emoce_positive)
+    # Rozdělíme zprávu na slova pro kontrolu
+    zprava_slova = zprava.split()
+    logging.debug(f"Zpráva rozdělená na slova: {zprava_slova}")
 
-    elif any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
-        aktualni_cas = datetime.now().strftime("%H:%M")
-        return f"Je {aktualni_cas}. Co těď plánuješ?"
+    # Kontrola negativních emocí
+    if any(phrase in zprava for phrase in negative_phrases):
+        logging.debug("Rozpoznána negativní emoce")
+        return random.choice(odpovedi_emoce_negative)
 
-    elif len(zprava.split()) >= 2:
-        return "To zní zajímavě! Můžeš mi o tom říct více?"
+    # Kontrola pozitivních emocí
+    if any(phrase in zprava for phrase in positive_phrases):
+        logging.debug("Rozpoznána pozitivní emoce")
+        return random.choice(odpovedi_emoce_positive)
 
-    if 'jmeno' in uzivatelske_info:
-        return f"{uzivatelske_info['jmeno']}, co plánuješ dnes?"
-    return "Promiň, tomu nerozumím. Můžeš to prosím říct jinak nebo to více objasnit?"
+    # Kontrola otázky na čas
+    elif any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
+        logging.debug("Rozpoznána otázka na čas")
+        aktualni_cas = datetime.now().strftime("%H:%M")
+        return f"Je {aktualni_cas}. Co těď plánuješ?"
+
+    # Fallback pro zprávy s více slovy
+    elif len(zprava_slova) >= 2:
+        logging.debug("Použita fallback odpověď pro dlouhou zprávu")
+        return "To zní zajímavě! Můžeš mi o tom říct více?"
+
+    if 'jmeno' in uzivatelske_info:
+        logging.debug("Použita odpověď s jménem uživatele")
+        return f"{uzivatelske_info['jmeno']}, co plánuješ dnes?"
+
+    logging.debug("Není rozpoznána žádná specifická podmínka")
+    return "Promiň, tomu nerozumím. Můžeš to prosím říct jinak nebo to více objasnit?"
