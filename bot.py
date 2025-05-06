@@ -14,7 +14,8 @@ prazdne_vstupy = 0
 
 odpovedi_ahoj = ["Ahoj! Jak se máš?", "Čau! Co tě dnes trápí?", "Zdravím tě! Jaký máš den?"]
 odpovedi_jak_se_mas = ["Mám se skvěle, díky, že se ptáš! A ty?", "Jsem v pohodě, co ty?", "Dnes jsem plný energie! Jak jsi na tom ty?"]
-odpovedi_emoce = ["To mě mrzí, co se stalo? Řekni mi víc.", "Hej, to zní těžce. Chceš o tom mluvit?", "Proč jsi smutný? Třeba tě rozveselím!"]
+odpovedi_emoce_negative = ["To mě mrzí, co se stalo? Řekni mi víc.", "Hej, to zní těžce. Chceš o tom mluvit?", "Proč jsi smutný? Třeba tě rozveselím!"]
+odpovedi_emoce_positive = ["To je super!, Jak to? Řekni mi víc.", "Hej, to je boží. Super, chceš o tom mluvit?", "Jéé! To ráda slyším!"]
 
 def odstran_diakritiku(zprava):
     diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
@@ -24,9 +25,9 @@ def odstran_diakritiku(zprava):
 def detect_emotion(text):
     text = text.lower()
     if any(word in text for word in ["sad", "bad", "upset", "stressed", "smutny", "spatny", "stres", "jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
-        return "negative"
+        return random.choice(odpovedi_emoce_negative)
     elif any(word in text for word in ["happy", "great", "awesome", "good", "stastny", "skvely", "super", "jsem stastny", "jsem stastna"]):
-        return "positive"
+        return random.choice(odpovedi_emoce_positive)
 
 def odpovedet(zprava):
     global prazdne_vstupy
@@ -63,7 +64,9 @@ def odpovedet(zprava):
         return random.choice(responses[emotion])
 
     elif any(emoce in zprava for emoce in ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
-        return random.choice(odpovedi_emoce)
+        return random.choice(odpovedi_emoce_negative)
+    elif any(emoce in zprava for emoce in ["jsem stastny", "jsem stastna", "jsem mi dobre", "je mi skvele"]):
+        return random.choice(odpovedi_emoce_posotive)
 
     elif any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
         aktualni_cas = datetime.now().strftime("%H:%M")
