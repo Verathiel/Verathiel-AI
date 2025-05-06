@@ -1,0 +1,5 @@
+{
+   "positive": ["To je skvělé, pověz mi víc!", "Jé, to zní super!"],
+   "negative": ["To mě mrzí, chceš o tom mluvit?", "Zkus si dát pauzu, pomůžu ti."],
+   "neutral": ["Aha, rozumím. Co se děje?", "Povídej, co máš novýho!"]
+}
