@@ -56,21 +56,32 @@ def odpovedet(zprava):
         return f"Skvělé, že máš rád {preference}! To je zajímavé."
 
     # Kontrola emocí
-    negative_phrases = ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]
-    positive_phrases = ["jsem stastny", "jsem stastna", "jsem mi dobre", "je mi skvele"]
+    negative_keywords = ["smutny", "smutna", "spatne", "blbe"]
+    positive_keywords = ["stastny", "stastna", "dobre", "skvele"]
 
     # Rozdělíme zprávu na slova pro kontrolu
     zprava_slova = zprava.split()
     logging.debug(f"Zpráva rozdělená na slova: {zprava_slova}")
 
-    # Kontrola negativních emocí
-    if any(phrase in zprava for phrase in negative_phrases):
-        logging.debug("Rozpoznána negativní emoce")
-        return random.choice(odpovedi_emoce_negative)
+    # Kontrola, zda zpráva obsahuje emoci
+    found_negative = False
+    found_positive = False
 
-    # Kontrola pozitivních emocí
-    if any(phrase in zprava for phrase in positive_phrases):
-        logging.debug("Rozpoznána pozitivní emoce")
+    if "jsem" in zprava_slova:
+        for keyword in negative_keywords:
+            if keyword in zprava_slova:  # Hledáme klíčová slova přímo v seznamu slov
+                found_negative = True
+                logging.debug(f"Rozpoznána negativní emoce: {keyword}")
+                break
+        for keyword in positive_keywords:
+            if keyword in zprava_slova:  # Hledáme klíčová slova přímo v seznamu slov
+                found_positive = True
+                logging.debug(f"Rozpoznána pozitivní emoce: {keyword}")
+                break
+
+    if found_negative:
+        return random.choice(odpovedi_emoce_negative)
+    if found_positive:
         return random.choice(odpovedi_emoce_positive)
 
     # Kontrola otázky na čas
