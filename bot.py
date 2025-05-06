@@ -2,6 +2,10 @@ import random
 import re
 import logging
 from datetime import datetime
+import json
+
+with open("responses.json", "r") as f:
+    responses = json.load(f)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -15,6 +19,15 @@ odpovedi_emoce = ["To mě mrzí, co se stalo? Řekni mi víc.", "Hej, to zní t�
 def odstran_diakritiku(zprava):
     diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
     return zprava.translate(diakritika)
+    
+# NOVÉ: Funkce pro detekci emocí
+def detect_emotion(text):
+    text = text.lower()
+    if any(word in text for word in ["sad", "bad", "upset", "stressed", "smutny", "spatny", "stres", "jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
+        return "negative"
+    elif any(word in text for word in ["happy", "great", "awesome", "good", "stastny", "skvely", "super", "jsem stastny", "jsem stastna"]):
+        return "positive"
+    return "neutral"
 
 def odpovedet(zprava):
     global prazdne_vstupy
@@ -45,6 +58,11 @@ def odpovedet(zprava):
         preference = re.search(r"mam\s+rad\s+(.+)", zprava).group(1)
         uzivatelske_info['preference'] = preference
         return f"Skvělé, že máš rád {preference}! To je zajímavé."
+
+    emotion = detect_emotion(zprava)
+    if emotion in responses:
+        return
+    random.choice(responses[emotion])
 
     elif any(emoce in zprava for emoce in ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
         return random.choice(odpovedi_emoce)
