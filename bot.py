@@ -36,7 +36,8 @@ def odpovedet(zprava):
     
     if "jsem smutna" in zprava:
         return random.choice(odpovedi_emoce_negative)
-    if "jsem vesela" in zprava:
+   
+if "jsem vesela" in zprava:
         return random.choice(odpovedi_emoce_positive)
 
     pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
