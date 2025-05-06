@@ -20,14 +20,6 @@ odpovedi_emoce_positive = ["To je super!, Jak to? Řekni mi víc.", "Hej, to je 
 def odstran_diakritiku(zprava):
     diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
     return zprava.translate(diakritika)
-    
-# NOVÉ: Funkce pro detekci emocí
-def detect_emotion(text):
-    text = text.lower()
-    if any(word in text for word in ["sad", "bad", "upset", "stressed", "smutny", "spatny", "stres", "jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
-        return random.choice(odpovedi_emoce_negative)
-    elif any(word in text for word in ["happy", "great", "awesome", "good", "stastny", "skvely", "super", "jsem stastny", "jsem stastna"]):
-        return random.choice(odpovedi_emoce_positive)
 
 def odpovedet(zprava):
     global prazdne_vstupy
@@ -66,7 +58,7 @@ def odpovedet(zprava):
     elif any(emoce in zprava for emoce in ["jsem smutny", "jsem smutna", "jsem spatne", "je mi blbe"]):
         return random.choice(odpovedi_emoce_negative)
     elif any(emoce in zprava for emoce in ["jsem stastny", "jsem stastna", "jsem mi dobre", "je mi skvele"]):
-        return random.choice(odpovedi_emoce_posotive)
+        return random.choice(odpovedi_emoce_positive)
 
     elif any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
         aktualni_cas = datetime.now().strftime("%H:%M")
