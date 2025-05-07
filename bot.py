@@ -34,52 +34,43 @@ def odpovedet(zprava):
     prazdne_vstupy = 0
     logging.debug(f"Zpráva po odstranění diakritiky: '{zprava}'")
 
-    # Emoce – negativní
-    if re.search(r"jsem (smutny|smutna|depresivni|nastvany|nastvana|zklamany|zklamana|osamoceny|osamocena)", zprava):
+    if any(e in zprava for e in ["jsem smutny", "jsem smutna"]):
         return random.choice(odpovedi_emoce_negative)
 
-    # Emoce – pozitivní
-    if re.search(r"jsem (rad|rada|stastny|stastna|vesely|vesela|nateseny|natesena|v pohode)", zprava):
+    if any(e in zprava for e in ["jsem rad", "jsem rada", "jsem vesely", "jsem vesela", "jsem stastny", "jsem stastna"]):
         return random.choice(odpovedi_emoce_positive)
 
-    # Pozdravy
     pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
     if any(pozdrav in zprava for pozdrav in pozdravy):
         logging.debug("Rozpoznán pozdrav")
         return random.choice(odpovedi_ahoj)
 
-    # Jak se máš?
     if any(varianta in zprava for varianta in ["jak se mas", "jak jsi", "jak jde", "jak se vede"]):
         logging.debug("Rozpoznána otázka 'jak se máš'")
         return random.choice(odpovedi_jak_se_mas)
 
-    # Jméno
     if re.search(r"jmenuji\s+se\s+(\w+)", zprava):
         jmeno = re.search(r"jmenuji\s+se\s+(\w+)", zprava).group(1)
         uzivatelske_info['jmeno'] = jmeno
         logging.debug(f"Rozpoznáno jméno: {jmeno}")
         return f"Rád tě poznávám, {jmeno}!"
 
-    # Preference
     if re.search(r"mam\s+rad\s+(.+)", zprava):
         preference = re.search(r"mam\s+rad\s+(.+)", zprava).group(1)
         uzivatelske_info['preference'] = preference
         logging.debug(f"Rozpoznána preference: {preference}")
         return f"Skvělé, že máš rád {preference}! To je zajímavé."
 
-    # Čas
     if any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
         logging.debug("Rozpoznána otázka na čas")
         aktualni_cas = datetime.now().strftime("%H:%M")
         return f"Je {aktualni_cas}. Co teď plánuješ?"
 
-    # Fallback pro delší vstupy
-    zprava_slova = zprava.split()
-    if len(zprava_slova) >= 2:
+    slova = zprava.split()
+    if len(slova) >= 2:
         logging.debug("Použita fallback odpověď pro dlouhou zprávu")
         return "To zní zajímavě! Můžeš mi o tom říct více?"
 
-    # Personalizace
     if 'jmeno' in uzivatelske_info:
         logging.debug("Použita odpověď s jménem uživatele")
         return f"{uzivatelske_info['jmeno']}, co plánuješ dnes?"
