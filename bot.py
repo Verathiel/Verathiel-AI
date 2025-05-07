@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 import json
 
-with open("responses.json", "r", encoding="utf-8") as f:
+with open("responses.json", "r") as f:
     responses = json.load(f)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,10 +12,10 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 uzivatelske_info = {}
 prazdne_vstupy = 0
 
-odpovedi_ahoj = responses["pozdrav"]
-odpovedi_jak_se_mas = responses["jak_se_mas"]
-odpovedi_emoce_negative = responses["negativni_emoce"]
-odpovedi_emoce_positive = responses["pozitivni_emoce"]
+odpovedi_ahoj = ["Ahoj! Jak se máš?", "Čau! Co tě dnes trápí?", "Zdravím tě! Jaký máš den?"]
+odpovedi_jak_se_mas = ["Mám se skvěle, díky, že se ptáš! A ty?", "Jsem v pohodě, co ty?", "Dnes jsem plný energie! Jak jsi na tom ty?"]
+odpovedi_emoce_negative = ["To mě mrzí, co se stalo? Řekni mi víc.", "Hej, to zní těžce. Chceš o tom mluvit?", "Proč jsi smutný? Třeba tě rozveselím!"]
+odpovedi_emoce_positive = ["To je super! Jak to? Řekni mi víc.", "Hej, to je boží. Super, chceš o tom mluvit?", "Jéé! To ráda slyším!"]
 
 def odstran_diakritiku(zprava):
     diakritika = str.maketrans("áčďéěíňóřšťúůýž", "acdeeinorstuuyz")
@@ -34,43 +34,52 @@ def odpovedet(zprava):
     prazdne_vstupy = 0
     logging.debug(f"Zpráva po odstranění diakritiky: '{zprava}'")
 
-    if any(p in zprava for p in ["jsem smutna", "jsem smutny"]):
+    # Emoce – negativní
+    if re.search(r"jsem (smutny|smutna|depresivni|nastvany|nastvana|zklamany|zklamana|osamoceny|osamocena)", zprava):
         return random.choice(odpovedi_emoce_negative)
-    elif any(p in zprava for p in ["jsem stastna", "jsem stastny", "jsem vesela", "jsem rad", "jsem rada"]):
+
+    # Emoce – pozitivní
+    if re.search(r"jsem (rad|rada|stastny|stastna|vesely|vesela|nateseny|natesena|v pohode)", zprava):
         return random.choice(odpovedi_emoce_positive)
 
+    # Pozdravy
     pozdravy = ["ahoj", "cau", "cus", "nazdar", "zdravim", "dobry den", "dobry vecer", "cauky", "caves", "servus"]
     if any(pozdrav in zprava for pozdrav in pozdravy):
         logging.debug("Rozpoznán pozdrav")
         return random.choice(odpovedi_ahoj)
 
+    # Jak se máš?
     if any(varianta in zprava for varianta in ["jak se mas", "jak jsi", "jak jde", "jak se vede"]):
         logging.debug("Rozpoznána otázka 'jak se máš'")
         return random.choice(odpovedi_jak_se_mas)
 
-    match_jmeno = re.search(r"jmenuji\s+se\s+(\w+)", zprava)
-    if match_jmeno:
-        jmeno = match_jmeno.group(1)
+    # Jméno
+    if re.search(r"jmenuji\s+se\s+(\w+)", zprava):
+        jmeno = re.search(r"jmenuji\s+se\s+(\w+)", zprava).group(1)
         uzivatelske_info['jmeno'] = jmeno
         logging.debug(f"Rozpoznáno jméno: {jmeno}")
         return f"Rád tě poznávám, {jmeno}!"
 
-    match_preference = re.search(r"mam\s+rad\s+(.+)", zprava)
-    if match_preference:
-        preference = match_preference.group(1)
+    # Preference
+    if re.search(r"mam\s+rad\s+(.+)", zprava):
+        preference = re.search(r"mam\s+rad\s+(.+)", zprava).group(1)
         uzivatelske_info['preference'] = preference
         logging.debug(f"Rozpoznána preference: {preference}")
         return f"Skvělé, že máš rád {preference}! To je zajímavé."
 
+    # Čas
     if any(otazka in zprava for otazka in ["kolik je hodin", "jaky je cas"]):
         logging.debug("Rozpoznána otázka na čas")
         aktualni_cas = datetime.now().strftime("%H:%M")
         return f"Je {aktualni_cas}. Co teď plánuješ?"
 
-    if len(zprava.split()) >= 2:
+    # Fallback pro delší vstupy
+    zprava_slova = zprava.split()
+    if len(zprava_slova) >= 2:
         logging.debug("Použita fallback odpověď pro dlouhou zprávu")
         return "To zní zajímavě! Můžeš mi o tom říct více?"
 
+    # Personalizace
     if 'jmeno' in uzivatelske_info:
         logging.debug("Použita odpověď s jménem uživatele")
         return f"{uzivatelske_info['jmeno']}, co plánuješ dnes?"
